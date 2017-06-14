@@ -32,7 +32,6 @@ app.get("/campgrounds", function(req, res){
        if(err){
            console.log(err);
        }else{
-           console.log(allCampgrounds);
            res.render("index", { campgrounds: allCampgrounds });
        }
     });
