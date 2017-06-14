@@ -14,18 +14,19 @@ app.set("view engine", "ejs");
 //database connection
 mongoose.connect("mongodb://localhost/yelp_camp_v3");
 
+//Fill db with seeds datas
 seedDB();
 
-// Campground.create({
-//     name: "Alpes",
-//     image: "http://lorempixel.com/400/200",
-//     description: "Superb vue on the moutain, no water, no WC. Great night sky"
-// });
-
+//Main route
 app.get("/", function (req, res) {
     res.render("landing");
 });
 
+//========================================
+//          CAMPGROUNDS ROUTES
+//         USING RESTFUL ROUTES
+//========================================
+//======== "INDEX" ROUTE=========
 app.get("/campgrounds", function(req, res){
     //get all campgrounds
     Campground.find({}, function(err, allCampgrounds){
@@ -36,23 +37,24 @@ app.get("/campgrounds", function(req, res){
        }
     });
 });
-
+//========== "NEW" ROUTE ==========
 app.get("/campgrounds/new", function (req, res) {
     res.render("new.ejs");
 });
-
-
+//========== "CREATE" ROUTE ==========
 app.post("/campgrounds", function(req, res){
+    //Shortcut vars
     var name = req.body.camp_name;
     var image = req.body.camp_imgurl;
     var desc = req.body.camp_description;
 
+    //creating the new Campground object
     var newCampground = {
         name: name,
         image: image,
         description: desc
     };
-
+    // Creating the new Campground object in DB
     Campground.create(newCampground, function(err, campground){
         if(err){
             console.log(err);
@@ -60,11 +62,13 @@ app.post("/campgrounds", function(req, res){
             console.log(campground);
         }
     });
-
+     //Redirecting to the INDEX
     res.redirect("/campgrounds");
 });
 
+//========== "SHOW" ROUTE ==========
 app.get("/campgrounds/:id", function (req, res) {
+    //Getting the campground by ID and populate the comments field
     Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err){
             console.log(err);
@@ -75,6 +79,7 @@ app.get("/campgrounds/:id", function (req, res) {
 });
 
 
+//Server Starting
 app.listen(3000, function () {
     console.log("YelpCamp is running");
 });
