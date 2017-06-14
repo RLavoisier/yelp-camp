@@ -12,3 +12,15 @@
     text-align: center;
     margin-bottom: 20px;
 }
+
+.img-responsive{
+    width: 100%;
+}
+
+.thumbnail{
+    padding: 0;
+}
+
+.caption-full{
+    padding: 8px;
+}
