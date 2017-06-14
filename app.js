@@ -4,7 +4,9 @@ var express     = require("express"),
     mongoose    = require("mongoose"),
     //MODELS
     Campground  = require("./models/campground"),
-    seedDB      = require("./seeds");
+    Comment     = require("./models/comment"),
+    seedDB      = require("./seeds"),
+    sanitizer   = require("sanitizer");
 
 //USES
 app.use(bodyParser.urlencoded({extended: true}));
@@ -15,7 +17,7 @@ app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost/yelp_camp_v3");
 
 //Fill db with seeds datas
-seedDB();
+//seedDB();
 
 //Main route
 app.get("/", function (req, res) {
@@ -33,13 +35,13 @@ app.get("/campgrounds", function(req, res){
        if(err){
            console.log(err);
        }else{
-           res.render("index", { campgrounds: allCampgrounds });
+           res.render("campgrounds/index", { campgrounds: allCampgrounds });
        }
     });
 });
 //========== "NEW" ROUTE ==========
 app.get("/campgrounds/new", function (req, res) {
-    res.render("new.ejs");
+    res.render("campgrounds/new");
 });
 //========== "CREATE" ROUTE ==========
 app.post("/campgrounds", function(req, res){
@@ -73,10 +75,56 @@ app.get("/campgrounds/:id", function (req, res) {
         if(err){
             console.log(err);
         }else{
-            res.render("show", {campground: foundCampground});
+            res.render("campgrounds/show", {campground: foundCampground});
         }
     });
 });
+
+//========================================
+//          COMMENTS ROUTES
+//         USING RESTFUL ROUTES
+//========================================
+
+//NEW ROUTE
+app.get("/campgrounds/:id/comments/new", function (req, res) {
+    Campground.findById(req.params.id, function(err, foundCampground){
+       if(err){
+           console.log(err);
+           res.redirect("/");
+       }else{
+           res.render("comments/new", { campground: foundCampground});
+       }
+    });
+});
+
+app.post("/campgrounds/:id/comments", function (req, res) {
+    //getting the form array
+    var comment = req.body.comment;
+    //sanitazing the text area
+    comment.text = sanitizer.sanitize(comment.text);
+
+    //create comment
+    Comment.create(comment, function(err, createdComment){
+        if(err){
+            console.log(err);
+        }else{
+            //retrieving the Campground
+            Campground.findById(req.params.id, function(err, foundCampground){
+                if(err){
+                    console.log(err);
+                }else{
+                    //Updating the campground
+                    foundCampground.comments.push(createdComment);
+                    foundCampground.save(function(err){
+                        res.redirect("/campgrounds/" + req.params.id);
+                    });
+                }
+            });
+        }
+    });
+
+});
+
 
 
 //Server Starting
