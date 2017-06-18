@@ -18,6 +18,8 @@
                     <h4 class="pull-right clearfix">9$/night</h4>
                     <h4><a href="#"><%= campground.name %></a></h4>
                     <p><%= campground.description %></p>
+                    <p>Submitted by <em><%= campground.author.username %></em></p>
+                    <p><a class="btn tbn-lg btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a></p>
                 </div>
             </div>
             <div class="well">

@@ -7,6 +7,7 @@ var express                     = require("express"),
     sanitizer                   = require("sanitizer"),
     passport                    = require("passport"),
     LocalStrategy               = require("passport-local"),
+    methodOverride              = require("method-override");
     User                        = require("./models/user"),
     session                     = require("express-session");
 
@@ -30,10 +31,12 @@ mongoose.connect("mongodb://localhost/yelp_camp_v6");
 app.use(session({
     secret: "Yelp c@mp for the win",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: require("mongoose-session")(mongoose)
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(methodOverride("_method"));
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -41,7 +44,6 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
     res.locals.currentUser = req.user;
-    console.log(req.user);
     next();
 });
 
