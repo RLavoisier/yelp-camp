@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router({mergeParams: true});
 var Campground = require("../models/campground");
+var sanitizer = require("sanitizer");
+var Comment = require("../models/comment");
 
 //========================================
 //          COMMENTS ROUTES
@@ -33,6 +35,11 @@ router.post("/", isLoggedIn, function (req, res) {
     //sanitazing the text area
     comment.text = sanitizer.sanitize(comment.text);
 
+    comment.author = {
+        username : req.user.username,
+        id: req.user._id
+    };
+
     //create comment
     Comment.create(comment, function(err, createdComment){
         if(err){
@@ -43,6 +50,7 @@ router.post("/", isLoggedIn, function (req, res) {
                 if(err){
                     console.log(err);
                 }else{
+                    //add username and id to comment
                     //Updating the campground
                     foundCampground.comments.push(createdComment);
                     foundCampground.save(function(err){

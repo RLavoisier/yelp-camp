@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 var Campground = require("../models/campground");
-var Comment = require("../models/comment");
 
 //========================================
 //          CAMPGROUNDS ROUTES
